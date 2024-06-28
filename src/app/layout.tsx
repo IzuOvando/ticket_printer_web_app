@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
+import Navbar from "@/components/Navbar";
+import { NextAuthContext } from "@/contexts";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--montserrat" });
 
@@ -16,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -24,7 +27,11 @@ export default function RootLayout({
           montserrat.className
         )}
       >
-        {children}
+        <NextAuthContext>
+          <Navbar />
+          {children}
+          <Toaster />
+        </NextAuthContext>
       </body>
     </html>
   );
