@@ -55,7 +55,7 @@ const handler = NextAuth({
       if (user !== null) {
         session.user = user;
       }
-      return await session;
+      return session;
     },
 
     async jwt({ token, user }) {
