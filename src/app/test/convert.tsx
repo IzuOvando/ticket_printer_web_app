@@ -6,53 +6,47 @@ import { DataRecord } from './schema';
 
 const prisma = new PrismaClient();
 
-/**
- * Converts all Excel sheets to individual CSV files.
- * @param inputFile Path to the input Excel file.
- * @param outputFolder Path to the folder where the CSV files will be saved.
- */
 function excelToCSV(inputFile: string, outputFolder: string) {
     const workbook = XLSX.readFile(inputFile);
-
     workbook.SheetNames.forEach((sheetName) => {
-
         const worksheet = workbook.Sheets[sheetName];
-
         const csvOutput = XLSX.utils.sheet_to_csv(worksheet);
-
         const outputFilePath = `${outputFolder}/${sheetName.replace(/[\s\/]+/g, '_')}.csv`;
-
         fs.writeFileSync(outputFilePath, csvOutput);
     });
 }
 
-/**
- * Reads a CSV file and inserts its data into the SQLite database using Prisma.
- * @param csvFile Path to the CSV file.
- */
 async function csvToSQLite(csvFile: string) {
-    const records: { name: string; email: string }[] = [];
-
+    const records: DataRecord[] = [];
     fs.createReadStream(csvFile)
         .pipe(csvParser())
         .on('data', (data: DataRecord) => records.push(data))
         .on('end', async () => {
             for (const record of records) {
-                await prisma.user.create({
-                    data: {
-                        name: record.name,
-                        email: record.email,
-                    },
-                });
+                await prisma.user.create({ data: record });
             }
             console.log('CSV data has been uploaded to SQLite');
+            await downloadDatabase('output.xlsx');
             await prisma.$disconnect();
         });
 }
 
-excelToCSV('../../../../bbd.xlsx', '../../../../file.csv');
+async function downloadDatabase(outputFile: string) {
+    const users = await prisma.user.findMany();
+    const worksheet = XLSX.utils.json_to_sheet(users);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    XLSX.writeFile(workbook, outputFile);
+    console.log('Database has been downloaded as Excel');
+}
 
-csvToSQLite('../../../../file.csv/Sheet1.csv');
+const inputFilePath = '../../../../bbd.xlsx';
+const outputFolder = '../../../../csv_output';
+const csvFilePath = '../../../../csv_output/Sheet1.csv';
+
+excelToCSV(inputFilePath, outputFolder);
+csvToSQLite(csvFilePath);
+
 
 
 // import * as fs from 'fs';
@@ -61,7 +55,7 @@ csvToSQLite('../../../../file.csv/Sheet1.csv');
 // import * as csvParser from 'csv-parser';
 // import { DataRecord } from './schema'; // Asegúrate de que la ruta sea correcta
 
-// export class UploadData {
+// export class Converter {
 //     private prisma: PrismaClient;
 
 //     constructor() {

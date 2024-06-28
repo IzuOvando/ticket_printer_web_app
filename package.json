@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^5.16.0",
+    "@prisma/client": "^5.16.1",
     "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.5",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
@@ -23,7 +24,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
-    "prisma": "^5.16.0",
+    "prisma": "^5.16.1",
     "typescript": "^5"
   }
 }
