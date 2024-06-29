@@ -6,7 +6,9 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import PrinterAsideCard from "./PrinterAsideCard";
+import DialogPrinter from "./DialogPrinter";
 
 const PrintersAside = () => {
   const printers: {
@@ -66,7 +68,12 @@ const PrintersAside = () => {
           </ScrollArea>
         )}
       </div>
-      <Button className="w-full mt-2">Agregar Impresora</Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button className="w-full mt-2">Agregar Impresora</Button>
+        </DialogTrigger>
+        <DialogPrinter mode="add" newPrinterNumber={printers.length + 1} />
+      </Dialog>
     </SheetContent>
   );
 };
