@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import {
   SheetContent,
   SheetHeader,
@@ -9,39 +11,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import PrinterAsideCard from "./PrinterAsideCard";
 import DialogPrinter from "./DialogPrinter";
+import { usePrinterStore } from "@/store";
 
 const PrintersAside = () => {
-  const printers: {
-    name: string;
-    ip: string;
-    online: boolean;
-  }[] = [
-    {
-      name: "Impresora 1",
-      ip: "192.168.1.1",
-      online: true,
-    },
-    {
-      name: "Impresora 2",
-      ip: "192.168.1.2",
-      online: false,
-    },
-    {
-      name: "Impresora 3",
-      ip: "192.168.1.3",
-      online: true,
-    },
-    {
-      name: "Impresora 4",
-      ip: "192.168.1.4",
-      online: true,
-    },
-    {
-      name: "Impresora 5",
-      ip: "192.168.1.5",
-      online: true,
-    },
-  ];
+  const [showDialog, setShowDialog] = useState(false);
+  const { printers } = usePrinterStore();
 
   return (
     <SheetContent className="w-full sm:!max-w-[400px] lg:!max-w-[500px]">
@@ -68,12 +42,15 @@ const PrintersAside = () => {
           </ScrollArea>
         )}
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="w-full mt-2">Agregar Impresora</Button>
-        </DialogTrigger>
-        <DialogPrinter mode="add" newPrinterNumber={printers.length + 1} />
-      </Dialog>
+      <Button className="w-full mt-2" onClick={() => setShowDialog(true)}>
+        Agregar Impresora
+      </Button>
+      <DialogPrinter
+        open={showDialog}
+        setOpen={setShowDialog}
+        mode="add"
+        newPrinterNumber={printers.length + 1}
+      />
     </SheetContent>
   );
 };

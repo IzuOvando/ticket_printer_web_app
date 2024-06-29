@@ -7,12 +7,19 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+import { usePrinterStore } from "@/store";
 
 interface AlertDialogDeletePrinterProps {
   name: string;
 }
 
 const AlertDialogDeletePrinter = ({ name }: AlertDialogDeletePrinterProps) => {
+  const { deletePrinter } = usePrinterStore();
+
+  const handleDelete = () => {
+    deletePrinter(name);
+  };
+
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -24,7 +31,7 @@ const AlertDialogDeletePrinter = ({ name }: AlertDialogDeletePrinterProps) => {
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-        <AlertDialogAction className="hover:bg-red-500">
+        <AlertDialogAction className="hover:bg-red-500" onClick={handleDelete}>
           Sí, Eliminar
         </AlertDialogAction>
       </AlertDialogFooter>
