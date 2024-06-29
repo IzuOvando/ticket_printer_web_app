@@ -1,10 +1,10 @@
-"use client";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { useToast } from "./ui/use-toast";
+import { signOut, auth } from "@/auth";
 
-const Navbar = () => {
-  const { toast } = useToast();
+const Navbar = async () => {
+  const session = await auth();
+
   return (
     <nav className="h-14 bg-primary-dark flex justify-between items-center p-8">
       <Image
@@ -13,21 +13,25 @@ const Navbar = () => {
         height={48}
         alt="logo"
       />
-      <Button
-        className="bg-accent hover:bg-accent-light active:bg-accent-dark"
-        onClick={() => {
-          const { dismiss } = toast({
-            title: "Toast",
-            description: "Esto es una prueba",
-          });
+      <form
+        className="flex text-white gap-6 items-center"
+        action={async () => {
+          "use server";
 
-          setTimeout(() => {
-            dismiss();
-          }, 2000);
+          await signOut({
+            redirectTo: "/login",
+          });
         }}
       >
-        Toast
-      </Button>
+        {session?.user ? (
+          <>
+            <span className="">Bienvenido, {session.user.name}</span>
+            <Button className="bg-accent hover:bg-accent-light active:bg-accent-dark">
+              Cerrar Sesión
+            </Button>
+          </>
+        ) : null}
+      </form>
     </nav>
   );
 };

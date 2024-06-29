@@ -4,7 +4,6 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
-import { NextAuthContext } from "@/contexts";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--montserrat" });
 
@@ -27,11 +26,9 @@ export default function RootLayout({
           montserrat.className
         )}
       >
-        <NextAuthContext>
-          <Navbar />
-          {children}
-          <Toaster />
-        </NextAuthContext>
+        <Navbar />
+        {children}
+        <Toaster />
       </body>
     </html>
   );
