@@ -4,7 +4,7 @@ import { Printer } from "../types";
 
 interface PrinterState {
   printers: Printer[];
-  addPrinter: (printer: Printer) => void;
+  addPrinter: (name: string, ip: string) => void;
   deletePrinter: (name: string) => void;
   editPrinter: (name: string, newName: string, ip: string) => void;
   reconnectPrinters: () => void;
@@ -14,9 +14,16 @@ export const usePrinterStore = create<PrinterState>()(
   persist(
     (set) => ({
       printers: [],
-      addPrinter: (printer) =>
+      addPrinter: (name, ip) =>
         set((state) => ({
-          printers: [...state.printers, printer],
+          printers: [
+            ...state.printers,
+            {
+              name,
+              ip,
+              online: false,
+            },
+          ],
         })),
       deletePrinter: (name) =>
         set((state) => {
