@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
+import { PrinterStoreInitializer } from "@/store";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--montserrat" });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Toaster />
+        <PrinterStoreInitializer />
       </body>
     </html>
   );
