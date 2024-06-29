@@ -7,6 +7,7 @@ interface PrinterState {
   addPrinter: (printer: Printer) => void;
   deletePrinter: (name: string) => void;
   editPrinter: (name: string, newName: string, ip: string) => void;
+  reconnectPrinters: () => void;
 }
 
 export const usePrinterStore = create<PrinterState>()(
@@ -44,11 +45,37 @@ export const usePrinterStore = create<PrinterState>()(
             printers: [...remainingPrinters, newPrinter],
           };
         }),
+      reconnectPrinters: () =>
+        set((state) => {
+          console.log("Reconnect Printers...");
+          const newPrinters = state.printers.map((print) => {
+            return {
+              ip: print.ip,
+              name: print.name,
+              online: print.online,
+              device: "Recconected Printer",
+            };
+          });
+
+          return {
+            printers: newPrinters,
+          };
+        }),
     }),
     {
       name: "printers",
       version: 1,
-      skipHydration: true,
+      partialize: (state) => {
+        return {
+          printers: state.printers.map((printer) => {
+            return {
+              name: printer.name,
+              ip: printer.ip,
+              online: printer.online,
+            };
+          }),
+        };
+      },
     }
   )
 );
