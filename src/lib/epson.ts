@@ -1,6 +1,9 @@
-type connectionCallbackType = (status: "online" | "offline") => void;
+type connectionCallbackType = (
+  status: "online" | "offline" | "connecting"
+) => void;
 
 export default class EpsonPrinter {
+  private ipAddress: string;
   private device: any;
   private instruction:
     | "isOnline"
@@ -13,29 +16,38 @@ export default class EpsonPrinter {
   private connectionCallback: connectionCallbackType | null = null;
 
   constructor(ipAddress: string, connectionCallback: connectionCallbackType) {
-    this.device = new window.epson.ePOSPrint(
-      `http://${ipAddress}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=2000`
-    );
+    this.ipAddress = ipAddress;
     this.instruction = null;
-    this.status = "offline";
-    // Setting Device Handlers
-    this.device.ononline = this.onOnline;
-    this.device.onoffline = this.onOffline;
-    this.device.onpoweroff = this.onOffline;
+    this.status = "connecting";
     // Connecting to printer
     this.connect(connectionCallback);
   }
 
   public connect(callback: connectionCallbackType) {
-    console.log("Connecting to printer...");
-    this.status = "connecting";
+    console.log(`Connecting to printer (${this.ipAddress})...`);
     this.instruction = "isOnline";
+    this.status = "connecting";
     this.connectionCallback = callback;
+    // Setting Device
+    this.device = new window.epson.ePOSPrint(
+      `http://${this.ipAddress}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=2000`
+    );
+    // Setting Device Handlers
+    this.device.ononline = this.onOnline;
+    this.device.onoffline = this.onOffline;
+    this.device.onpoweroff = this.onOffline;
     this.device.send();
   }
 
+  public reconnect() {
+    if (this.connectionCallback) {
+      this.connectionCallback("connecting");
+      this.connect(this.connectionCallback);
+    }
+  }
+
   private onOnline = () => {
-    console.log("Printer is online");
+    console.log(`Printer (${this.ipAddress}) is online`);
     if (this.instruction === "isOnline" && this.connectionCallback) {
       this.status = "online";
       this.connectionCallback("online");
@@ -43,20 +55,22 @@ export default class EpsonPrinter {
   };
 
   private onOffline = () => {
-    console.log("Printer is offline");
+    console.log(`Printer (${this.ipAddress}) is offline`);
     if (this.instruction === "isOnline" && this.connectionCallback)
       this.connectionCallback("offline");
   };
 
-  public printTicket = () => {
+  public printTest = () => {
     if (this.status === "offline") {
       throw new Error("Cannot print with printer offline");
     }
 
+    // TODO: Handle success/failure with callback
+
     var builder = new window.epson.ePOSBuilder();
     builder.addTextAlign(builder.ALIGN_CENTER);
     builder.addTextStyle(false, false, true, builder.COLOR_1);
-    builder.addText("Print Ticket Succesfully!\n");
+    builder.addText("¡Impresión de Prueba Exitosa!");
     builder.addFeedLine(3);
     builder.addCut(builder.CUT_FEED);
 

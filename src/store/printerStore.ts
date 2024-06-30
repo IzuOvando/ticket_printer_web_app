@@ -102,16 +102,16 @@ export const usePrinterStore = create<PrinterState>()(
         }),
       reconnectPrinters: () =>
         set((state) => {
-          console.log("Reconnect Printers...");
           const newPrinters = state.printers.map((print) => {
             return {
               ip: print.ip,
               name: print.name,
               status: "connecting",
+              device: new EpsonPrinter(print.ip, (status) => {
+                state.changePrinterStatus(print.name, status);
+              }),
             } as Printer;
           });
-
-          // TODO: Implement reconnection
 
           return {
             printers: newPrinters,

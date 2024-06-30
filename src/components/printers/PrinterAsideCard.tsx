@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Printer as PrinterIcon, Pencil, Trash2 } from "lucide-react";
+import {
+  Printer as PrinterIcon,
+  Pencil,
+  Trash2,
+  ArrowUpDown,
+  ReceiptText,
+} from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -66,6 +72,42 @@ const PrinterAsideCard = (printer: Printer) => {
             />
           </ContextMenuItem>
 
+          {printer.status !== "connecting" && (
+            <ContextMenuItem
+              className="text-md font-medium flex justify-between items-center cursor-pointer"
+              inset
+              onClick={() => {
+                printer.device?.reconnect();
+              }}
+            >
+              Reconectar
+              <ArrowUpDown
+                size={18}
+                strokeWidth={1.5}
+                absoluteStrokeWidth
+                className="text-slate-950"
+              />
+            </ContextMenuItem>
+          )}
+
+          {printer.status === "online" && (
+            <ContextMenuItem
+              className="text-md font-medium flex justify-between items-center cursor-pointer"
+              inset
+              onClick={() => {
+                printer.device?.printTest();
+              }}
+            >
+              Probar
+              <ReceiptText
+                size={18}
+                strokeWidth={1.5}
+                absoluteStrokeWidth
+                className="text-slate-950"
+              />
+            </ContextMenuItem>
+          )}
+
           <AlertDialogTrigger asChild>
             <ContextMenuItem
               className="text-md font-medium flex justify-between items-center cursor-pointer hover:!bg-red-100"
@@ -79,7 +121,6 @@ const PrinterAsideCard = (printer: Printer) => {
                 className="text-slate-950"
               />
             </ContextMenuItem>
-            {/* TODO: Implement reconnection button */}
           </AlertDialogTrigger>
         </ContextMenuContent>
       </ContextMenu>
