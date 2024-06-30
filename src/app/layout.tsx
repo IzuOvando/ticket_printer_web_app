@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
+import { PrinterStoreInitializer } from "@/store";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--montserrat" });
 
@@ -29,6 +31,8 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Toaster />
+        <PrinterStoreInitializer />
+        <Script src="/lib/epos-2.27.0.js" strategy="beforeInteractive" />
       </body>
     </html>
   );
