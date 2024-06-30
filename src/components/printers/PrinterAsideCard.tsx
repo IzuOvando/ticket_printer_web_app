@@ -32,7 +32,12 @@ const PrinterAsideCard = (printer: Printer) => {
               <span className="font-medium text-lg text-gray-600">
                 {printer.ip}
               </span>
-              {printer.online ? (
+              {printer.status === "connecting" ? (
+                <span className="flex gap-2 justify-center items-center text-sky-500 font-medium">
+                  <span className="flex h-2 w-2 rounded-full bg-sky-500" />
+                  Connecting...
+                </span>
+              ) : printer.status === "online" ? (
                 <span className="flex gap-2 justify-center items-center text-green-500 font-medium">
                   <span className="flex h-2 w-2 rounded-full bg-green-500" />
                   Online
@@ -74,6 +79,7 @@ const PrinterAsideCard = (printer: Printer) => {
                 className="text-slate-950"
               />
             </ContextMenuItem>
+            {/* TODO: Implement reconnection button */}
           </AlertDialogTrigger>
         </ContextMenuContent>
       </ContextMenu>

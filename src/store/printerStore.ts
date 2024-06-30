@@ -1,12 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Printer } from "../types";
+import EpsonPrinter from "@/lib/epson";
 
 interface PrinterState {
   printers: Printer[];
   addPrinter: (name: string, ip: string) => void;
   deletePrinter: (name: string) => void;
   editPrinter: (name: string, newName: string, ip: string) => void;
+  changePrinterStatus: (
+    name: string,
+    status: "online" | "offline" | "connecting"
+  ) => void;
   reconnectPrinters: () => void;
 }
 
@@ -15,16 +20,23 @@ export const usePrinterStore = create<PrinterState>()(
     (set) => ({
       printers: [],
       addPrinter: (name, ip) =>
-        set((state) => ({
-          printers: [
-            ...state.printers,
-            {
-              name,
-              ip,
-              online: false,
-            },
-          ],
-        })),
+        set((state) => {
+          const device = new EpsonPrinter(ip, (status) => {
+            state.changePrinterStatus(name, status);
+          });
+
+          return {
+            printers: [
+              ...state.printers,
+              {
+                name,
+                ip,
+                status: "connecting",
+                device,
+              },
+            ],
+          };
+        }),
       deletePrinter: (name) =>
         set((state) => {
           return {
@@ -42,10 +54,46 @@ export const usePrinterStore = create<PrinterState>()(
             (printer) => printer.name !== name
           );
 
+          let status;
+          let device;
+
+          if (printer.ip === ip) {
+            status = printer.status;
+            device = printer.device;
+          } else {
+            status = "connecting" as "connecting";
+            device = new EpsonPrinter(ip, (status) => {
+              state.changePrinterStatus(name, status);
+            });
+          }
+
           const newPrinter: Printer = {
             name: newName,
             ip: ip,
-            online: printer.online,
+            status: status,
+            device: device,
+          };
+
+          return {
+            printers: [...remainingPrinters, newPrinter],
+          };
+        }),
+      changePrinterStatus: (name, status) =>
+        set((state) => {
+          const printer = state.printers.find(
+            (printer) => printer.name === name
+          );
+          if (!printer) return { printers: state.printers };
+
+          const remainingPrinters = state.printers.filter(
+            (printer) => printer.name !== name
+          );
+
+          const newPrinter: Printer = {
+            name: printer.name,
+            ip: printer.ip,
+            status: status,
+            device: printer.device,
           };
 
           return {
@@ -59,10 +107,11 @@ export const usePrinterStore = create<PrinterState>()(
             return {
               ip: print.ip,
               name: print.name,
-              online: print.online,
-              device: "Recconected Printer",
-            };
+              status: "connecting",
+            } as Printer;
           });
+
+          // TODO: Implement reconnection
 
           return {
             printers: newPrinters,
@@ -78,7 +127,7 @@ export const usePrinterStore = create<PrinterState>()(
             return {
               name: printer.name,
               ip: printer.ip,
-              online: printer.online,
+              status: printer.status,
             };
           }),
         };
